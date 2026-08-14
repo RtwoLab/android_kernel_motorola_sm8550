@@ -412,7 +412,7 @@ struct altmode_client *altmode_register_client(struct device *client_dev,
 				client_data->name, key);
 
 	if (!atomic_read(&amdev->pan_en_sent))
-		schedule_delayed_work(&amdev->send_pan_en_work,
+		queue_delayed_work(system_power_efficient_wq, &amdev->send_pan_en_work,
 				msecs_to_jiffies(20));
 
 	return amclient;
@@ -511,7 +511,7 @@ static void altmode_state_cb(void *priv, enum pmic_glink_state state)
 	case PMIC_GLINK_STATE_UP:
 		mutex_lock(&amdev->client_lock);
 		if (!list_empty(&amdev->client_list))
-			schedule_delayed_work(&amdev->send_pan_en_work,
+			queue_delayed_work(system_power_efficient_wq, &amdev->send_pan_en_work,
 						msecs_to_jiffies(20));
 		mutex_unlock(&amdev->client_lock);
 		break;
@@ -575,7 +575,7 @@ static int altmode_callback(void *priv, void *data, size_t len)
 			altmode_dbg("No client associated with SVID %#x port %u\n",
 					svid, port_index);
 			amdev->ack_port_index = port_index;
-			schedule_delayed_work(&amdev->send_pan_ack_work,
+			queue_delayed_work(system_power_efficient_wq, &amdev->send_pan_ack_work,
 					msecs_to_jiffies(20));
 			return 0;
 		}
@@ -621,7 +621,7 @@ static int pan_en_write(void *data, u64 val)
 {
 	struct altmode_dev *amdev = data;
 
-	schedule_delayed_work(&amdev->send_pan_en_work,
+	queue_delayed_work(system_power_efficient_wq, &amdev->send_pan_en_work,
 				msecs_to_jiffies(20));
 	return 0;
 }
