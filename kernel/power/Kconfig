@@ -350,3 +350,12 @@ config GPIO_VALID_ARRAY
           if a GPIO can be accessed by APPS. It's only needed when the GPIO
           is still unaccessible although gpiochip_line_is_valid() returns
           true.
+
+config BOEFFLA_WL_BLOCKER
+	bool "Boeffla generic wakelock blocker driver"
+	depends on PM
+	default y
+	help
+	  This is a generic wakelock blocker driver. Wakelocks can be blocked
+	  via a sysfs interface, which can help to improve battery life by
+	  preventing certain wakeup sources from keeping the device awake.
