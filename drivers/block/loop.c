@@ -2385,6 +2385,8 @@ static int loop_add(int i)
 		goto out_cleanup_tags;
 	}
 	lo->lo_queue = lo->lo_disk->queue;
+	/* The backing device already accounts for the physical I/O. */
+	blk_queue_flag_clear(QUEUE_FLAG_IO_STAT, lo->lo_queue);
 
 	blk_queue_max_hw_sectors(lo->lo_queue, BLK_DEF_MAX_SECTORS);
 
