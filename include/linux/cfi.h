@@ -7,9 +7,9 @@
 #ifndef _LINUX_CFI_H
 #define _LINUX_CFI_H
 
-#ifdef CONFIG_CFI_CLANG
 typedef void (*cfi_check_fn)(uint64_t id, void *ptr, void *diag);
 
+#ifdef CONFIG_CFI_CLANG
 /* Compiler-generated function in each module, and the kernel */
 extern void __cfi_check(uint64_t id, void *ptr, void *diag);
 

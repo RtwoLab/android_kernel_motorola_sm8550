@@ -391,9 +391,8 @@ struct module {
 	const s32 *crcs;
 	unsigned int num_syms;
 
-#ifdef CONFIG_CFI_CLANG
+	/* Keep the GKI module ABI stable when the kernel is built without CFI. */
 	cfi_check_fn cfi_check;
-#endif
 
 	/* Kernel parameters. */
 #ifdef CONFIG_SYSFS

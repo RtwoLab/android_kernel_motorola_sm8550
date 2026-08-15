@@ -4589,8 +4589,43 @@ out:
 }
 #endif /* CONFIG_KALLSYMS */
 
+#ifndef CONFIG_CFI_CLANG
+/*
+ * Allow modules compiled with Clang CFI to load when the kernel itself is
+ * built without CFI. These symbols are normally provided by kernel/cfi.c.
+ */
+void __ubsan_handle_cfi_check_fail_abort(void *data, void *ptr, void *vtable)
+{
+}
+EXPORT_SYMBOL(__ubsan_handle_cfi_check_fail_abort);
+
+void __cfi_slowpath_diag(uint64_t id, void *ptr, void *diag)
+{
+}
+EXPORT_SYMBOL(__cfi_slowpath_diag);
+#endif
+
 static void cfi_init(struct module *mod)
 {
+#ifndef CONFIG_CFI_CLANG
+	initcall_t *init;
+	exitcall_t *exit;
+
+	rcu_read_lock_sched();
+	init = (initcall_t *)
+		find_kallsyms_symbol_value(mod, "__cfi_jt_init_module");
+	exit = (exitcall_t *)
+		find_kallsyms_symbol_value(mod, "__cfi_jt_cleanup_module");
+	rcu_read_unlock_sched();
+
+	/* CFI modules expose init/exit through their jump table. */
+	if (init)
+		mod->init = *init;
+#ifdef CONFIG_MODULE_UNLOAD
+	if (exit)
+		mod->exit = *exit;
+#endif
+#endif
 #ifdef CONFIG_CFI_CLANG
 	initcall_t *init;
 	exitcall_t *exit;
